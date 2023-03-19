@@ -1,4 +1,5 @@
 import numpy as np
+import math
 
 def bellman_update(env, V, pi, s, gamma):
     sum = 0
@@ -9,7 +10,7 @@ def bellman_update(env, V, pi, s, gamma):
 
 def policy_evaluation(env, pi, V, gamma=1.0, theta=1e-5):
     
-    delta = float('inf')
+    delta = math.inf
     
     while delta > theta:
         delta = 0
