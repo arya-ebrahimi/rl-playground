@@ -161,8 +161,55 @@ def off_policy_evaluation(target_policy, env, num_episodes, gamma=1.0):
             G = (gamma * G) + reward
             C[(state, action)] += W
             Q[(state, action)] += (W/C[(state, action)])*(G - Q[(state, action)])
+            
             W *= target_policy[state][action]/b[state][action]
             
     return Q    
     
+def off_policy_control(target_policy, env, num_episodes, gamma=1.0):
+    Q = defaultdict(float)
+    C = defaultdict(float)
+
+    for _ in trange(num_episodes):
+        b = generate_behaviour_policy()
+        # generate episode using b
+        episode = []
+        state = env.reset()
+        done = False
+        while not done:
+            action = np.random.choice(np.arange(env.action_space.n), p=b[state]) 
+            next_state, reward, done, _ = env.step(action)
+            episode = [(state, action, reward)] + episode
+            state = next_state
+            
+        G = 0.0
+        W = 1.0        
+
+        for timestep in episode:
+            state, action, reward = timestep[0], timestep[1], timestep[2]
+
+            G = (gamma * G) + reward
+            C[(state, action)] += W
+            Q[(state, action)] += (W/C[(state, action)])*(G - Q[(state, action)])
+            
+            A_star = argmax(Q, state, env.action_space.n)
+            target_policy[state] = np.array([1 if i == A_star else 0 for i in range(env.action_space.n)])
+            if action != A_star:
+                break
+            W *= 1/b[state][action]
+            
+    return Q, target_policy
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+ 
