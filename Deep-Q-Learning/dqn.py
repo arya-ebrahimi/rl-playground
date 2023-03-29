@@ -187,7 +187,6 @@ class QAgent():
                 self._remember(state, action, next_state, reward, done)
                 
                 self.optimize()
-                
                 state = next_state
                 reward_in_episode += reward
 
