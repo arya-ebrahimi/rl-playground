@@ -66,16 +66,17 @@ class DQN(nn.Module):
 class QAgent():
     def __init__(self, env):
         self.env = env
-        self.num_episodes = 5000
+        self.num_episodes = 10000
         self.model_dir = Path('.models')
         self.save_ratio = 250
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.batch_size = 128
         self.gamma = 0.99
-        self.eps_start = 0.9
-        self.eps_end = 0.05
-        self.eps_decay = 1000
-        self.tau = 0.005
+        self.eps_start = 1
+        self.eps_end = 0.1
+        self.eps_decay = 400
+        # self.tau = 0.005
+        self.target_update = 20
         self.learning_rate = 1e-3
         self.id = time.time()
         
@@ -190,18 +191,20 @@ class QAgent():
                 state = next_state
                 reward_in_episode += reward
 
-                target_net_state_dict = self.target_net.state_dict()
-                policy_net_state_dict = self.policy_net.state_dict()
-                for key in policy_net_state_dict:
-                    target_net_state_dict[key] = policy_net_state_dict[key]*self.tau + target_net_state_dict[key]*(1-self.tau)
-                
-                self.target_net.load_state_dict(target_net_state_dict)
+                # target_net_state_dict = self.target_net.state_dict()
+                # policy_net_state_dict = self.policy_net.state_dict()
+                # for key in policy_net_state_dict:
+                #     target_net_state_dict[key] = policy_net_state_dict[key]*self.tau + target_net_state_dict[key]*(1-self.tau)
+                # self.target_net.load_state_dict(target_net_state_dict)
                 
                 if done:
                     self.reward_in_episode.append(reward_in_episode)
                     self.plot_rewards()
                     break
-                    
+                
+                
+            if i % self.target_update == 0:
+                self.target_net.load_state_dict(self.policy_net.state_dict())
             if i % self.save_ratio == 0:
                 self._save()
         self.plot_rewards(show_result=True)
