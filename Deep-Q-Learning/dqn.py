@@ -75,9 +75,9 @@ class QAgent():
         self.eps_start = 1
         self.eps_end = 0.1
         self.eps_decay = 400
-        # self.tau = 0.005
-        self.target_update = 20
+        self.target_update = 25
         self.learning_rate = 1e-3
+        self.max_episode = 100
         self.id = time.time()
         
         if not os.path.exists(self.model_dir):
@@ -181,6 +181,7 @@ class QAgent():
             done = False
             reward_in_episode = 0
             for t in count():
+                
                 action = self.select_action(state=state)
                 next_state, reward, terminated, truncated, _ = self.env.step(action)
                 done = terminated or truncated
@@ -197,14 +198,14 @@ class QAgent():
                 #     target_net_state_dict[key] = policy_net_state_dict[key]*self.tau + target_net_state_dict[key]*(1-self.tau)
                 # self.target_net.load_state_dict(target_net_state_dict)
                 
-                if done:
+                if done or t > self.max_episode:
                     self.reward_in_episode.append(reward_in_episode)
                     self.plot_rewards()
                     break
                 
-                
             if i % self.target_update == 0:
                 self.target_net.load_state_dict(self.policy_net.state_dict())
+            
             if i % self.save_ratio == 0:
                 self._save()
         self.plot_rewards(show_result=True)
