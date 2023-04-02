@@ -57,7 +57,7 @@ class DQN(nn.Module):
         self.emb = nn.Embedding(input, 4)
         self.l1 = nn.Linear(4, 50)
         self.l2 = nn.Linear(50, 50)
-        self.l3 = nn.Linear(50, outputs)
+        self.l3 = nn.Linear(50*self.tiles, outputs)
         if activation == 'relu':
             self.activation = F.relu
         elif activation == 'fta':
@@ -65,7 +65,7 @@ class DQN(nn.Module):
 
     def forward(self, x):
         x = F.relu(self.l1(self.emb(x)))
-        x = F.relu(self.l2(x))
+        x = self.activation(self.l2(x))
         x = self.l3(x)
         return x
            
