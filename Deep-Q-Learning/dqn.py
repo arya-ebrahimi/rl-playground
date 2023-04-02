@@ -66,7 +66,7 @@ class DQN(nn.Module):
 class QAgent():
     def __init__(self, env):
         self.env = env
-        self.num_episodes = 10000
+        self.num_episodes = 50000
         self.model_dir = Path('.models')
         self.save_ratio = 250
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -207,7 +207,8 @@ class QAgent():
                 self.target_net.load_state_dict(self.policy_net.state_dict())
             
             if i % self.save_ratio == 0:
-                self._save()
+                # self._save()
+                torch.save(self, f'{self.model_dir}/pytorch_{self.id}.pt')
         self.plot_rewards(show_result=True)
         plt.ioff()
         plt.show()
