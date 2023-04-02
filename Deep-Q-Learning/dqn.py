@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 import matplotlib
 import time
 import math
+from fta import FTA
 
 is_ipython = 'inline' in matplotlib.get_backend()
 if is_ipython:
@@ -50,12 +51,17 @@ class ReplayMemory(object):
 
 class DQN(nn.Module):
 
-    def __init__(self, input, outputs):
+    def __init__(self, input, outputs, activation='relu'):
         super(DQN, self).__init__()
+        self.tiles = 10
         self.emb = nn.Embedding(input, 4)
         self.l1 = nn.Linear(4, 50)
         self.l2 = nn.Linear(50, 50)
         self.l3 = nn.Linear(50, outputs)
+        if activation == 'relu':
+            self.activation = F.relu
+        elif activation == 'fta':
+            self.activation = FTA(tiles=self.tiles, bound_low=-1, bound_high=1, eta=0.2, input_dim=50)
 
     def forward(self, x):
         x = F.relu(self.l1(self.emb(x)))
@@ -65,8 +71,9 @@ class DQN(nn.Module):
            
 class QAgent():
     def __init__(self, env):
+        self.activation = 'fta'
         self.env = env
-        self.num_episodes = 50000
+        self.num_episodes = 10000
         self.model_dir = Path('.models')
         self.save_ratio = 250
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -86,8 +93,8 @@ class QAgent():
         self.action_space = env.action_space.n
         self.observation_space = env.observation_space.n
         
-        self.policy_net = DQN(self.observation_space, self.action_space).to(self.device)
-        self.target_net = DQN(self.observation_space, self.action_space).to(self.device)
+        self.policy_net = DQN(self.observation_space, self.action_space, activation=self.activation).to(self.device)
+        self.target_net = DQN(self.observation_space, self.action_space, activation=self.activation).to(self.device)
         self.target_net.load_state_dict(self.policy_net.state_dict())
         
         self.loss_fn = nn.SmoothL1Loss()
