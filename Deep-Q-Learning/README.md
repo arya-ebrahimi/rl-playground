@@ -1,5 +1,7 @@
 ### DQN on gym Taxi environment
 ![](https://github.com/Arya-Ebrahimi/RL-Playground/blob/main/Deep-Q-Learning/runs/out.gif)
+#### Final Results
+![](https://github.com/Arya-Ebrahimi/RL-Playground/blob/main/Deep-Q-Learning/images/50000.png)
 ##### My first experiment was a DQN similar to the one proposed in Pytorch, but it didn't learn anything.
 ![Alt text](https://github.com/Arya-Ebrahimi//RL-Playground/blob/main/Deep-Q-Learning/images/target_network_soft_network.png?raw=true "1")
 
