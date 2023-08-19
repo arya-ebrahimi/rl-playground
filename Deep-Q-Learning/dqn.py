@@ -13,6 +13,7 @@ import matplotlib
 import time
 import math
 from fta import FTA
+import pickle
 
 is_ipython = 'inline' in matplotlib.get_backend()
 if is_ipython:
@@ -75,13 +76,15 @@ class QAgent():
         self.env = env
         self.num_episodes = 10000
         self.model_dir = Path('.models')
+        self.reward_dir = Path('.rewards')
+
         self.save_ratio = 250
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device("cpu")
         self.batch_size = 128
         self.gamma = 0.99
         self.eps_start = 1
         self.eps_end = 0.1
-        self.eps_decay = 400
+        self.eps_decay = 1000
         self.target_update = 25
         self.learning_rate = 1e-3
         self.max_episode = 100
@@ -89,6 +92,8 @@ class QAgent():
         
         if not os.path.exists(self.model_dir):
             os.makedirs(self.model_dir)
+        if not os.path.exists(self.reward_dir):
+            os.makedirs(self.reward_dir)
             
         self.action_space = env.action_space.n
         self.observation_space = env.observation_space.n
@@ -215,7 +220,10 @@ class QAgent():
             
             if i % self.save_ratio == 0:
                 # self._save()
-                torch.save(self, f'{self.model_dir}/pytorch_{self.id}.pt')
+                # torch.save(self, f'{self.model_dir}/pytorch_{self.id}.pt')
+                
+                with open(f'{self.reward_dir}/rewards_{self.id}.pkl', 'wb') as fp:
+                    pickle.dump(self.reward_in_episode, fp)
         self.plot_rewards(show_result=True)
         plt.ioff()
         plt.show()
