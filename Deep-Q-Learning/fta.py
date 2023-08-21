@@ -4,13 +4,13 @@ import numpy as np
 
 
 class FTA:
-    def __init__(self, tiles, bound_low, bound_high, eta, input_dim):
-        # 1 tiling, binning
+    def __init__(self, tiles, bound_low, bound_high, eta, input_dim, device):
         self.n_tilings = 1
         self.n_tiles = tiles
         self.bound_low, self.bound_high = bound_low, bound_high
         self.delta = (self.bound_high - self.bound_low) / self.n_tiles
         self.c_mat = torch.as_tensor(np.array([self.delta * i for i in range(self.n_tiles)]) + self.bound_low, dtype=torch.float32)
+        self.c_mat = self.c_mat.to(device=device)
         self.eta = eta
         self.d = input_dim
 
@@ -18,6 +18,7 @@ class FTA:
         temp = reps
         temp = temp.reshape([-1, self.d, 1])
         onehots = 1.0 - self.i_plus_eta(self.sum_relu(self.c_mat, temp))
+        onehots = onehots
         out = torch.reshape(torch.reshape(onehots, [-1]), [-1, int(self.d * self.n_tiles * self.n_tilings)])
         return out
 

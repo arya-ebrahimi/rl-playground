@@ -52,7 +52,7 @@ class ReplayMemory(object):
 
 class DQN(nn.Module):
 
-    def __init__(self, input, outputs, activation='relu'):
+    def __init__(self, input, outputs, activation='relu', device='cpu'):
         super(DQN, self).__init__()
         self.tiles = 10
         self.emb = nn.Embedding(input, 4)
@@ -62,7 +62,7 @@ class DQN(nn.Module):
         if activation == 'relu':
             self.activation = F.relu
         elif activation == 'fta':
-            self.activation = FTA(tiles=self.tiles, bound_low=-1, bound_high=1, eta=0.2, input_dim=50)
+            self.activation = FTA(tiles=self.tiles, bound_low=-1, bound_high=1, eta=0.2, input_dim=50, device=device)
 
     def forward(self, x):
         x = F.relu(self.l1(self.emb(x)))
@@ -79,7 +79,7 @@ class QAgent():
         self.reward_dir = Path('.rewards')
 
         self.save_ratio = 250
-        self.device = torch.device("cpu")
+        self.device = torch.device("cuda")
         self.batch_size = 128
         self.gamma = 0.99
         self.eps_start = 1
@@ -98,8 +98,8 @@ class QAgent():
         self.action_space = env.action_space.n
         self.observation_space = env.observation_space.n
         
-        self.policy_net = DQN(self.observation_space, self.action_space, activation=self.activation).to(self.device)
-        self.target_net = DQN(self.observation_space, self.action_space, activation=self.activation).to(self.device)
+        self.policy_net = DQN(self.observation_space, self.action_space, activation=self.activation, device=self.device).to(self.device)
+        self.target_net = DQN(self.observation_space, self.action_space, activation=self.activation, device=self.device).to(self.device)
         self.target_net.load_state_dict(self.policy_net.state_dict())
         
         self.loss_fn = nn.SmoothL1Loss()
