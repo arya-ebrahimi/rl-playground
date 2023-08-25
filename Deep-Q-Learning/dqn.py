@@ -84,8 +84,8 @@ class QAgent():
         self.gamma = 0.99
         self.eps_start = 1
         self.eps_end = 0.1
-        self.eps_decay = 1000
-        self.target_update = 25
+        self.eps_decay = 10000
+        self.target_update = 100
         self.learning_rate = 1e-3
         self.max_episode = 100
         self.id = time.time()
@@ -105,7 +105,7 @@ class QAgent():
         self.loss_fn = nn.SmoothL1Loss()
         self.optimizer = torch.optim.AdamW(self.policy_net.parameters(), lr=self.learning_rate, amsgrad=True)
         
-        self.memory = ReplayMemory(10000)
+        self.memory = ReplayMemory(100000)
         
         self.steps_done = 0
         self.reward_in_episode = []
