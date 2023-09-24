@@ -11,3 +11,6 @@ save_freq: 10
 seed: None
 
 hidden_space: 64
+
+actor_model: models/ppo_actor.pth
+critic_model: models/ppo_critic.pth
