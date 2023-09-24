@@ -1,1 +1,3 @@
 PPO/outputs/*
+PPO/outputs
+PPO/core/__pycache__
