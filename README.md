@@ -3,9 +3,11 @@ Welcome to my Reinforcement Learning playground. I will put the codes and exerci
 
 ##### Table of Contents
 
-1. [DQN](DQN " DQN") : DQN implementation using pytorch. I used the pytorch documentation in RL section with some small changes and a different environment. using both ReLU and Fuzzy Tiling Activations(FTA)
+1. [PPO](PPO):
 
-2. Tabular
+2. [DQN](DQN " DQN"): DQN implementation using pytorch. I used the pytorch documentation in RL section with some small changes and a different environment. using both ReLU and Fuzzy Tiling Activations(FTA)
+
+3. Tabular:
    - [Dynamic Programming](Tabular/dynamic-programming " Dynamic Programming") : Policy and Value iteration algorithms are implemented and tested on two Gym environments.
    - [Monte Carlo](Tabular/monte-carlo " Monte Carlo") : Monte Carlo prediction and control for Blackjack.
    - [10 Armed Bandits](Tabular/k-arm-bandits): 10-armed bandit, testing different exploration approaches.
