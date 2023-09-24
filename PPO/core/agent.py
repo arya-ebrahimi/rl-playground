@@ -7,6 +7,7 @@ import torch.nn as nn
 from torch.optim import Adam
 from torch.distributions import MultivariateNormal
 
+
 from core.networks import MLP
 
 class PPO:
@@ -14,18 +15,19 @@ class PPO:
     def __init__(self, env:gym.Env, conf):
         self.conf = conf
         self.env = env
+        self.device = torch.device('cuda')
         
         self.obs_space = env.observation_space.shape[0]
         self.action_space = env.action_space.shape[0]
         
-        self.actor = MLP(input_dim=self.obs_space, output_dim=self.action_space, hidden_dim=self.conf['hidden_space'])
-        self.critic = MLP(input_dim=self.obs_space, output_dim=1, hidden_dim=self.conf['hidden_space'])
+        self.actor = MLP(input_dim=self.obs_space, output_dim=self.action_space, hidden_dim=self.conf['hidden_space']).to(self.device)
+        self.critic = MLP(input_dim=self.obs_space, output_dim=1, hidden_dim=self.conf['hidden_space']).to(self.device)
         
         self.actor_optimizer = Adam(self.actor.parameters(), lr=self.conf['lr'])
         self.critic_optimzer = Adam(self.critic.parameters(), lr=self.conf['lr'])
         
-        self.cov_var = torch.full(size=(self.action_space, ), fill_value=0.5)
-        self.cov_mat = torch.diag(self.cov_var)
+        self.cov_var = torch.full(size=(self.action_space, ), fill_value=0.5).to(self.device)
+        self.cov_mat = torch.diag(self.cov_var).to(self.device)
         
     def learn(self, total_timesteps):
         timestep = 0
@@ -67,6 +69,8 @@ class PPO:
             if iter % self.conf['save_freq'] == 0:
                 torch.save(self.actor.state_dict(), './ppo_actor.pth')
                 torch.save(self.critic.state_dict(), './ppo_critic.pth')
+                print(f'iteration: {iter}, timesteps: {timestep}')
+                
     
     def rollout(self):
 		# Batch data. For more details, check function header.
@@ -99,6 +103,7 @@ class PPO:
 
                 action, log_prob = self.get_action(obs)
                 obs, rew, terminated, truncated, _ = self.env.step(action)
+                done = terminated or truncated
 
                 ep_rews.append(rew)
                 batch_acts.append(action)
@@ -110,11 +115,10 @@ class PPO:
             batch_lens.append(ep_t + 1)
             batch_rews.append(ep_rews)
 
-        batch_obs = torch.tensor(batch_obs, dtype=torch.float)
-        batch_acts = torch.tensor(batch_acts, dtype=torch.float)
-        batch_log_probs = torch.tensor(batch_log_probs, dtype=torch.float)
-        batch_rtgs = self.compute_rtgs(batch_rews)                                                              # ALG STEP 4
-
+        batch_obs = torch.tensor(np.array(batch_obs), dtype=torch.float).to(self.device)
+        batch_acts = torch.tensor(np.array(batch_acts), dtype=torch.float).to(self.device)
+        batch_log_probs = torch.tensor(batch_log_probs, dtype=torch.float).to(self.device)
+        batch_rtgs = self.compute_rtgs(batch_rews).to(self.device) 
 
         return batch_obs, batch_acts, batch_log_probs, batch_rtgs, batch_lens        
 
@@ -124,7 +128,7 @@ class PPO:
 
         for ep_rews in reversed(batch_rews):
 
-            discounted_reward = 0 # The discounted reward so far
+            discounted_reward = 0 
 
             for rew in reversed(ep_rews):
                 discounted_reward = rew + discounted_reward * self.conf['gamma']
@@ -142,7 +146,7 @@ class PPO:
 
         log_prob = dist.log_prob(action)
 
-        return action.detach().numpy(), log_prob.detach()
+        return action.cpu().detach().numpy(), log_prob.detach()
 
     def evaluate(self, batch_obs, batch_acts):
         

@@ -15,7 +15,8 @@ class MLP(nn.Module):
     def forward(self, x):
         if isinstance(x, np.ndarray):
             x = torch.tensor(x, dtype=torch.float)
-            
+        x=x.to(torch.device('cuda'))
+
         x = F.relu(self.layer1(x))
         x = F.relu(self.layer2(x))
         o = self.layer3(x)
