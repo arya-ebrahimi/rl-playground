@@ -3,9 +3,9 @@ Welcome to my Reinforcement Learning playground. I will put the codes and exerci
 
 ##### Table of Contents
 
-1. [PPO](PPO):
+1. [PPO](PPO): Simple PPO implementation using pytorch and tested on classic control tasks.
 
-2. [DQN](DQN " DQN"): DQN implementation using pytorch. I used the pytorch documentation in RL section with some small changes and a different environment. using both ReLU and Fuzzy Tiling Activations(FTA)
+2. [DQN](DQN): DQN implementation using pytorch. I used the pytorch documentation in RL section with some small changes and a different environment. using both ReLU and Fuzzy Tiling Activations(FTA)
 
 3. Tabular:
    - [Dynamic Programming](Tabular/dynamic-programming " Dynamic Programming") : Policy and Value iteration algorithms are implemented and tested on two Gym environments.
