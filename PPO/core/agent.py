@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn
 
 from torch.optim import Adam
-from torch.distributions import MultivariateNormal
+from torch.distributions import MultivariateNormal, Categorical
 
 
 from core.networks import MLP
@@ -17,8 +17,14 @@ class PPO:
         self.env = env
         self.device = torch.device('cuda')
         
+        if isinstance(env.action_space, gym.spaces.Discrete):
+            self.discrete = True
+            self.action_space = env.action_space.n
+        else:
+            self.discrete = False
+            self.action_space = env.action_space.shape[0]
+            
         self.obs_space = env.observation_space.shape[0]
-        self.action_space = env.action_space.shape[0]
         
         self.actor = MLP(input_dim=self.obs_space, output_dim=self.action_space, hidden_dim=self.conf['hidden_space']).to(self.device)
         self.critic = MLP(input_dim=self.obs_space, output_dim=1, hidden_dim=self.conf['hidden_space']).to(self.device)
@@ -99,9 +105,12 @@ class PPO:
                 t += 1 # Increment timesteps ran this batch so far
 
                 batch_obs.append(obs)
-
-
+                
                 action, log_prob = self.get_action(obs)
+
+                # if self.discrete:
+                #     action = np.argmax(action)
+                    
                 obs, rew, terminated, truncated, _ = self.env.step(action)
                 done = terminated or truncated
 
@@ -114,6 +123,8 @@ class PPO:
 
             batch_lens.append(ep_t + 1)
             batch_rews.append(ep_rews)
+            
+            # print(ep_rews)
 
         batch_obs = torch.tensor(np.array(batch_obs), dtype=torch.float).to(self.device)
         batch_acts = torch.tensor(np.array(batch_acts), dtype=torch.float).to(self.device)
@@ -140,10 +151,14 @@ class PPO:
 
     def get_action(self, obs):
         mean = self.actor(obs)
-
-        dist = MultivariateNormal(mean, self.cov_mat)
+        
+        if self.discrete:
+            mean = torch.nn.functional.softmax(mean, dim=-1)
+            dist = Categorical(mean)
+        else:
+            dist = MultivariateNormal(mean, self.cov_mat)
+        
         action = dist.sample()
-
         log_prob = dist.log_prob(action)
 
         return action.cpu().detach().numpy(), log_prob.detach()
@@ -152,7 +167,13 @@ class PPO:
         
         V = self.critic(batch_obs).squeeze()
         mean = self.actor(batch_obs)
-        dist = MultivariateNormal(mean, self.cov_mat)
+        
+        if self.discrete:
+            mean = torch.nn.functional.softmax(mean, dim=-1)
+            dist = Categorical(mean)
+        else:
+            dist = MultivariateNormal(mean, self.cov_mat)
+        
         log_probs = dist.log_prob(batch_acts)
         
         return V, log_probs

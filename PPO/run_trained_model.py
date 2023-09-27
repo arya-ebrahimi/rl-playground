@@ -14,11 +14,12 @@ def test(env, conf):
       print(f"Successfully loaded.", flush=True)
    
    model.rollout() 
+   
 
 @hydra.main(config_path="config", config_name="config.yaml", version_base=None)
 def main(args):
         
-   env = gym.make('Pendulum-v1', render_mode='human')
+   env = gym.make(args['env'], render_mode='human')
 
    test(env, conf=args)
 

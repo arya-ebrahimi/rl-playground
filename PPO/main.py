@@ -18,7 +18,7 @@ def train(env, conf):
 @hydra.main(config_path="config", config_name="config.yaml", version_base=None)
 def main(args):
         
-    env = gym.make('Pendulum-v1', render_mode='rgb_array')
+    env = gym.make(args['env'], render_mode='rgb_array')
 
     train(env, conf=args)
 
