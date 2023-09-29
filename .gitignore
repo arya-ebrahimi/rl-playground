@@ -1,5 +1,6 @@
-PPO/outputs/*
 PPO/outputs
 PPO/core/__pycache__
 PPO/runs
-PPO/runs/*
+DDPG/core/__pycache__
+DDPG/outputs
+DDPG/runs
