@@ -5,7 +5,6 @@ import torch
 import torch.nn as nn
 
 from torch.optim import Adam
-from torch.distributions import MultivariateNormal, Categorical
 
 from core.utils import ReplayMemory, Transition, Noise
 from core.networks import MLP
@@ -19,12 +18,7 @@ class DDPG:
         self.env = env
         self.device = torch.device('cuda')
         
-        if isinstance(env.action_space, gym.spaces.Discrete):
-            self.discrete = True
-            self.action_space = env.action_space.n
-        else:
-            self.discrete = False
-            self.action_space = env.action_space.shape[0]
+        self.action_space = env.action_space.shape[0]
         
         self.obs_space = env.observation_space.shape[0]
         

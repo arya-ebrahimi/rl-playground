@@ -4,3 +4,6 @@ PPO/runs
 DDPG/core/__pycache__
 DDPG/outputs
 DDPG/runs
+TD3/core/__pycache__
+TD3/outputs
+TD3/runs
