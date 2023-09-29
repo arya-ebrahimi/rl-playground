@@ -94,7 +94,6 @@ class DDPG:
         critic_loss.backward()
         self.critic_optimzer.step()
         
-        # print(critic_loss)
         
         # update actor
         
@@ -105,7 +104,6 @@ class DDPG:
         actor_loss.backward()
         self.actor_optimizer.step()
         
-        # print(actor_loss)
         
         # update target nets
         
