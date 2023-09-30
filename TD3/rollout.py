@@ -22,8 +22,8 @@ def train(env, conf):
 @hydra.main(config_path="config", config_name="config.yaml", version_base=None)
 def main(args):
         
-    env = gym.make(args['env'], render_mode='rgb_array')
-    env = record_video.RecordVideo(env, video_folder='runs', name_prefix='pendulum')
+    env = gym.make(args['env'], render_mode='human')
+    # env = record_video.RecordVideo(env, video_folder='runs', name_prefix='pendulum')
 
     train(env, conf=args)
     env.close()

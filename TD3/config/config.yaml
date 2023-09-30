@@ -4,7 +4,7 @@ gamma: 0.99
 tau: 0.005
 
 # Pendulum-v1
-env: "Pendulum-v1"
+env: "HalfCheetah-v4"
 
 
 policy_noise: 0.2
@@ -15,7 +15,7 @@ delay_freq: 2
 
 
 buffer_size: 100000
-number_of_episodes: 2000
+number_of_episodes: 10000
 batch_size: 64
 
 
@@ -26,5 +26,5 @@ seed: None
 
 load_model_for_train: False
 
-actor_model: td3_actor.pth
-critic_model: td3_critic.pth
+actor_model: models/td3_actor.pth
+critic_model: models/td3_critic.pth
