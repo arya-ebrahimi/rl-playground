@@ -1,5 +1,5 @@
 ## RL Playground
-Welcome to my Reinforcement Learning playground. I will put the codes and exercises I do while learning RL here.
+Simple implementations of RL algorithms.
 
 ##### Table of Contents
 

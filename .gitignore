@@ -7,3 +7,6 @@ DDPG/runs
 TD3/core/__pycache__
 TD3/outputs
 TD3/runs
+SAC/core/__pycache__
+SAC/outputs
+SAC/runs
