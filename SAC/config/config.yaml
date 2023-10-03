@@ -1,0 +1,28 @@
+critic_lr: 3e-4
+actor_lr: 3e-4
+temp_lr: 3e-4
+
+gamma: 0.99
+tau: 0.005
+
+alpha: 0.2
+# Pendulum-v1, Hopper-v4
+env: "Hopper-v4"
+
+delay_freq: 1
+
+
+buffer_size: 1000000
+number_of_episodes: 10000
+batch_size: 256
+
+
+render: True
+render_every: 10
+save_freq: 10
+seed: None
+
+load_model_for_train: False
+
+actor_model: models/Hopper-v4sac_actor.pth
+critic_model: models/Hopper-v4sac_critic.pth
