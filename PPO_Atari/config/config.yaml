@@ -1,0 +1,21 @@
+timesteps_per_batch: 1024
+max_timesteps_per_episode: 128
+n_updates_per_iteration: 2
+lr: 1e-4
+gamma: 0.99
+clip: 0.2
+
+# Pendulum-v1, LunarLander-v2
+env: "ALE/Pong-v5"
+
+render: False
+render_every: 10
+save_freq: 10
+seed: None
+
+entropy_coef: 1e-2
+critic_coef: 0.5
+
+num_envs: 4
+
+model: ppo.pth
