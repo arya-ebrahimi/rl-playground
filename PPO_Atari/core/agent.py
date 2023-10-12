@@ -17,14 +17,14 @@ class PPO:
         self.env = env
         self.device = torch.device('cuda')
         
-        if isinstance(env.action_space, gym.spaces.Discrete):
-            self.discrete = True
-            # self.action_space = env.single_action_space.n
+
+        if self.conf['render']:
+            self.action_space = env.action_space.n
+        else:
             self.action_space = env.single_action_space.n
             
-        else:
-            self.discrete = False
-            self.action_space = env.action_space.shape[0]
+        print(self.action_space)
+
             
         self.obs_space = env.observation_space.shape[0]
         
@@ -60,8 +60,8 @@ class PPO:
                 # print(self.env.single_action_space)
                 
                 V, curr_log_probs, entropy = self.evaluate(batch_obs, batch_acts)
-                print(curr_log_probs.shape)
-                print(batch_log_probs.shape)
+                # print(curr_log_probs.shape)
+                # print(batch_log_probs.shape)
                 
                 
                 ratios = torch.exp(curr_log_probs - batch_log_probs)
@@ -95,9 +95,9 @@ class PPO:
 		# Batch data. For more details, check function header.
         batch_obs = []
         batch_acts = []
-        batch_log_probs = torch.zeros((1024, 4)).to(self.device)
+        batch_log_probs = torch.zeros((1024, self.conf['num_envs'])).to(self.device)
         batch_rews = []
-        batch_rtgs = []
+        batch_rtgs = torch.zeros((1024, self.conf['num_envs'])).to(self.device)
         batch_lens = []
 
         ep_rews = []
@@ -110,6 +110,9 @@ class PPO:
             obs, _= self.env.reset()
             done = False
             
+            if self.conf['render']:
+                obs = np.array(obs)
+
             for ep_t in range(self.conf['max_timesteps_per_episode']):
                 
                 if self.conf['render'] and len(batch_lens) == 0:
@@ -124,8 +127,13 @@ class PPO:
                 # if self.discrete:
                 #     action = np.argmax(action)
                 # print(action)
-
-                obs, rew, done, _, _= self.env.step(action)
+                # print(action)
+                if self.conf['render']:
+                    obs, rew, terminated, truncated, _= self.env.step(action[0])
+                    done = terminated or truncated
+                    obs = np.array(obs)
+                else:
+                    obs, rew, done, _, _= self.env.step(action)
                 # print(rew)
                 
                 ep_rews.append(rew)
@@ -163,7 +171,7 @@ class PPO:
                 discounted_reward = rew + discounted_reward * self.conf['gamma']
                 batch_rtgs.insert(0, discounted_reward)
 
-        batch_rtgs = torch.tensor(batch_rtgs, dtype=torch.float)
+        batch_rtgs = torch.tensor(np.array(batch_rtgs), dtype=torch.float)
 
         return batch_rtgs
 
@@ -179,7 +187,7 @@ class PPO:
         log_prob = dist.log_prob(action)
         # print(log_prob.shape)
         # print(log_prob.shape)
-        return action.cpu().detach().numpy(), log_prob.detach(), dist.entropy()
+        return action.cpu().detach().numpy(), log_prob, dist.entropy()
 
     def evaluate(self, batch_obs, batch_acts):
         
@@ -190,4 +198,4 @@ class PPO:
         dist = Categorical(mean)
         log_probs = dist.log_prob(batch_acts.squeeze())
         # print(log_probs.shape)
-        return V, log_probs.detach(), dist.entropy()
+        return V, log_probs, dist.entropy()

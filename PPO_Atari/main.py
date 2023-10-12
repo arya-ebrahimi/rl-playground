@@ -16,10 +16,10 @@ from stable_baselines3.common.atari_wrappers import (  # isort:skip
 def train(env, conf):
     model = PPO(env=env, conf=conf)
 
-    # if conf['actor_model'] != None and conf['critic_model'] != None:
-    #     model.actor.load_state_dict(torch.load(conf['actor_model']))
-    #     model.critic.load_state_dict(torch.load(conf['critic_model']))
-    #     print(f"Successfully loaded.", flush=True)
+    if conf['model'] != None:
+        model.agent.load_state_dict(torch.load(conf['model']))
+        print(f"Successfully loaded.", flush=True)
+   
     
     model.learn(total_timesteps=20000000)
     

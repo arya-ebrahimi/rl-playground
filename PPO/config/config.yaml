@@ -6,7 +6,7 @@ gamma: 0.99
 clip: 0.2
 
 # Pendulum-v1, LunarLander-v2
-env: "LunarLander-v2"
+env: "Pendulum-v1"
 
 render: True
 render_every: 10
